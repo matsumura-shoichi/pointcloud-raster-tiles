@@ -1,45 +1,67 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <title>Point Cloud Raster Tiles</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
-  <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
-  <style>
-    body { margin: 0; padding: 0; }
-    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css" rel="stylesheet" />
+    <title>点群画像タイル表示テスト</title>
+    <style>
+        body { margin: 0; }
+        #map { width: 100vw; height: 100vh; }
+    </style>
 </head>
 <body>
-<div id="map"></div>
-<script>
-const map = new maplibregl.Map({
-  container: 'map',
-  style: {
-    version: 8,
-    sources: {
-      "base": {
-        "type": "raster",
-        "tiles": ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-        "tileSize": 256
-      },
-      "pointcloud": {
-        "type": "raster",
-        "tiles": [
-          "https://matsumura-shoichi.github.io/pointcloud-raster-tiles/tiles/{z}/{x}/{y}.png"
-        ],
-        "tileSize": 256
-      }
-    },
-    layers: [
-      { "id": "base", "type": "raster", "source": "base" },
-      { "id": "pointcloud", "type": "raster", "source": "pointcloud", "paint": { "raster-opacity": 0.9 } }
-    ]
-  },
-  center: [139.507, 35.604],
-  zoom: 15
-});
-</script>
+    <div id="map"></div>
+    <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js"></script>
+    <script>
+        // MapLibre GL JSのインスタンスを作成
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: {
+                "version": 8,
+                "sources": {
+                    "gsi": {
+                        "type": "raster",
+                        "tiles": [
+                            "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg"
+                        ],
+                        "attribution": "地理院タイル"
+                    },
+                    "dem": {
+                        "type": "raster-dem",
+                        "tiles": [
+                           "https://cyberjapandata.gsi.go.jp/xyz/dem_png/{z}/{x}/{y}.png",
+                           //"https://rinya-tochigi.geospatial.jp/2023/rinya/tile/terrainRGB/{z}/{x}/{y}.png"
+                           "https://matsumura-shoichi.github.io/pointcloud-raster-tiles/tiles/{z}/{x}/{y}.png"
+
+                        ], 
+                        "tileSize": 256
+                    }
+                },
+                "layers": [
+                    {
+                        "id": "gsi",
+                        "type": "raster",
+                        "source": "gsi"
+                    }
+                ],
+                "terrain": {
+                    "source": "dem",
+                    "exaggeration": 0.1 // 高さを誇張
+                    //"exaggeration": 1 // 高さを誇張
+                }
+            },
+            center: [139.6917, 35.6895], // 初期位置 (東京)
+            zoom: 10,
+            pitch: 45, // ピッチ角度を設定
+            maxPitch: 85
+        });
+
+        // 地図が読み込まれた後に高低差を表示
+        map.on('load', () => {
+            map.setTerrain({source: 'dem', exaggeration: 0.1});
+            //map.setTerrain({source: 'dem', exaggeration: 1});
+        });
+    </script>
 </body>
 </html>
