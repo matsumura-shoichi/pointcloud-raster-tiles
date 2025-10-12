@@ -2,62 +2,44 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>MapLibre 3D Terrain (DEM)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <script src="https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.js"></script>
-  <link href="https://unpkg.com/maplibre-gl@3.5.2/dist/maplibre-gl.css" rel="stylesheet" />
+  <title>Point Cloud Raster Tiles</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+  <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
   <style>
     body { margin: 0; padding: 0; }
-    #map { width: 100vw; height: 100vh; }
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
   </style>
 </head>
 <body>
-  <div id="map"></div>
-  <script>
-    const map = new maplibregl.Map({
-      container: 'map',
-      style: {
-        version: 8,
-        sources: {
-          // 背景地図（地理院など）
-          'base-map': {
-            type: 'raster',
-            tiles: [
-              'https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png'
-            ],
-            tileSize: 256,
-            attribution: '地理院地図'
-          },
-          // あなたのDEMタイル
-          'dem': {
-            type: 'raster-dem',
-            tiles: [
-              'http://localhost:8080/{z}/{x}/{y}.png'
-            ],
-            tileSize: 256,
-            encoding: 'terrarium', // DEMの形式に応じて変更
-            maxzoom: 15
-          }
-        },
-        layers: [
-          {
-            id: 'base-map',
-            type: 'raster',
-            source: 'base-map'
-          }
-        ],
-        terrain: {
-          source: 'dem',
-          exaggeration: 1.0
-        }
+<div id="map"></div>
+<script>
+const map = new maplibregl.Map({
+  container: 'map',
+  style: {
+    version: 8,
+    sources: {
+      "base": {
+        "type": "raster",
+        "tiles": ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+        "tileSize": 256
       },
-      center: [139.6917, 35.6895], // 東京（表示中心）
-      zoom: 10,
-      pitch: 60,
-      bearing: -20
-    });
-
-    map.addControl(new maplibregl.NavigationControl());
-  </script>
+      "pointcloud": {
+        "type": "raster",
+        "tiles": [
+          "https://matsumura-shoichi.github.io/pointcloud-raster-tiles/tiles/{z}/{x}/{y}.png"
+        ],
+        "tileSize": 256
+      }
+    },
+    layers: [
+      { "id": "base", "type": "raster", "source": "base" },
+      { "id": "pointcloud", "type": "raster", "source": "pointcloud", "paint": { "raster-opacity": 0.9 } }
+    ]
+  },
+  center: [139.507, 35.604],
+  zoom: 15
+});
+</script>
 </body>
 </html>
